@@ -78,6 +78,21 @@ class ToyDatasets():
     dataset = periodical + np.random.standard_t(dof, self.num_elements) / noise_factor
     return dataset
 
+  def polynomial_without_noise(self, order=2, min_x=-1, max_x=1, y_offset=1):
+    x = np.linspace(min_x, max_x, self.num_elements)
+    dataset = y_offset + x**order
+    return dataset
+
+  def polynomial_with_gaussian_noise(self, order=2, min_x=-1, max_x=1, y_offset=1, std=0.1, noise_factor=1):
+    polynomial = self.polynomial_without_noise(order, min_x, max_x, y_offset)
+    dataset = polynomial + np.random.normal(0, std, self.num_elements) / noise_factor
+    return dataset
+
+  def polynomial_with_non_gaussian_noise(self, order=2, min_x=-1, max_x=1, y_offset=1, dof=3, noise_factor=10):
+    polynomial = self.polynomial_without_noise(order, min_x, max_x, y_offset)
+    dataset = polynomial + np.random.standard_t(dof, self.num_elements) / noise_factor
+    return dataset
+
   ###########################
   ### MULTIPLE TIMESERIES ###
   ###########################
