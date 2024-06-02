@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 class ToyDatasets():
   def __init__(self, num_elements=100, num_features=5):
@@ -115,20 +116,30 @@ class ToyDatasets():
   ###########################
   ### MULTIPLE TIMESERIES ###
   ###########################
-  def multiple_linear_trending_without_noise(self):
-    pass
+  def financial(self, num_features=3, corr_start_end=(0.8, 1), mean_return=0.0005, volatility=0.02, initial_price=100):
+    # correlation matrix between timeseries
+    start_range, end_range = corr_start_end
+    lower_triangular = np.tril(np.random.uniform(start_range, end_range, size=(num_features, num_features)), k=-1)
+    corr = lower_triangular + lower_triangular.T
+    np.fill_diagonal(corr, 1)
 
-  def multiple_linear_trending_with_gaussian_noise(self):
-    pass
+    # Define parameters
+    mean_returns = np.full(num_features, mean_return)  # Mean daily return
 
-  def multiple_linear_trending_with_non_gaussian_noise(self):
-    pass
+    # Generate random returns based on a normal distribution
+    returns = np.random.multivariate_normal(mean=mean_returns, cov=corr, size=self.num_elements) * volatility
 
-  def multiple_periodical_sinusoidals_without_noise(self):
-    pass
+    # Calculate cumulative returns
+    cumulative_returns = np.exp(np.cumsum(returns, axis=0))
 
-  def multiple_periodical_sinusoidals_with_gaussian_noise(self):
-    pass
+    # Calculate prices
+    prices = initial_price * cumulative_returns
 
-  def multiple_periodical_sinusoidals_with_non_gaussian_noise(self):
-    pass
+    # Create DataFrame
+    data = {}
+    for i, price_timeseries in enumerate(prices.T):
+      data[i] = price_timeseries
+
+    df = pd.DataFrame(data)
+
+    return df.to_numpy()
